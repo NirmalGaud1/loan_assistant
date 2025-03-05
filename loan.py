@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from googletrans import Translator
 from datetime import datetime, date
+import math
 
 # Configure Google Generative AI
 API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
@@ -33,6 +34,29 @@ def translate_text(text, dest_language="en"):
         return "No text provided for translation."
     except Exception as e:
         return f"Translation Error: {str(e)}"
+
+# Function to calculate EMI
+def calculate_emi(loan_amount, interest_rate, tenure):
+    # Convert interest rate from percentage to monthly decimal
+    monthly_interest_rate = (interest_rate / 12) / 100
+    # Convert tenure from years to months
+    tenure_months = tenure * 12
+    # EMI formula
+    emi = (loan_amount * monthly_interest_rate * (1 + monthly_interest_rate) ** tenure_months) / ((1 + monthly_interest_rate) ** tenure_months - 1)
+    return emi
+
+# Function to generate EMI details
+def generate_emi_details(loan_amount, interest_rate, tenure, language_code):
+    emi = calculate_emi(loan_amount, interest_rate, tenure)
+    total_payment = emi * tenure * 12
+    total_interest = total_payment - loan_amount
+
+    emi_details = (
+        f"EMI: ₹{emi:.2f}\n"
+        f"Total Interest Payable: ₹{total_interest:.2f}\n"
+        f"Total Payment (Principal + Interest): ₹{total_payment:.2f}"
+    )
+    return translate_text(emi_details, language_code)
 
 # Function to check loan sanction eligibility (multilingual)
 def check_loan_sanction(income, loan_amount, tenure, language_code):
@@ -90,6 +114,16 @@ def main():
         # Financial Literacy Tips
         if any(keyword in user_query.lower() for keyword in ["financial tips", "saving", "credit score"]):
             display_financial_tips(language_code)
+
+        # EMI Calculation
+        if "emi" in user_query.lower() or "loan calculator" in user_query.lower():
+            st.sidebar.write(translate_text("**EMI Calculation:**", language_code))
+            loan_amount = st.sidebar.number_input(translate_text("Loan Amount (in INR):", language_code), min_value=0)
+            interest_rate = st.sidebar.number_input(translate_text("Interest Rate (%):", language_code), min_value=0.0)
+            tenure = st.sidebar.number_input(translate_text("Loan Tenure (in years):", language_code), min_value=1)
+            if loan_amount > 0 and interest_rate > 0 and tenure > 0:
+                emi_details = generate_emi_details(loan_amount, interest_rate, tenure, language_code)
+                st.sidebar.write(emi_details)
 
     # Loan Application Form
     with st.form("loan_form"):
