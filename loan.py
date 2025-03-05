@@ -1,9 +1,10 @@
 import streamlit as st
 import google.generativeai as genai
 from googletrans import Translator
+from datetime import datetime, date
 
 # Configure Google Generative AI
-API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  
+API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
 genai.configure(api_key=API_KEY)
 
 # Initialize the Generative Model
@@ -94,7 +95,17 @@ def main():
     with st.form("loan_form"):
         st.header(translate_text("Applicant Details", language_code))
         name = st.text_input(translate_text("Full Name:", language_code), placeholder=translate_text("Enter your full name", language_code))
-        dob = st.date_input(translate_text("Date of Birth:", language_code))
+        
+        # Custom Date Range for Date of Birth
+        min_dob = date(1900, 1, 1)  # Minimum date: January 1, 1900
+        max_dob = date.today()  # Maximum date: Today
+        dob = st.date_input(
+            translate_text("Date of Birth:", language_code),
+            min_value=min_dob,
+            max_value=max_dob,
+            value=date(1990, 1, 1)  # Default date: January 1, 1990
+        )
+        
         mobile = st.text_input(translate_text("Mobile Number:", language_code), placeholder=translate_text("Enter your mobile number", language_code))
         email = st.text_input(translate_text("Email:", language_code), placeholder=translate_text("Enter your email", language_code))
         pan = st.text_input(translate_text("PAN Number:", language_code), placeholder=translate_text("Enter your PAN number", language_code))
