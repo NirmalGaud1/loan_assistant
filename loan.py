@@ -80,7 +80,7 @@ def main():
     if user_query:
         english_query = translate_text(user_query, "en")
         ai_response = get_ai_response(f"You are a loan advisor. Help the user with their query: {english_query}", language_code)
-        st.sidebar.write(translate_text("**AI Response:**", language_code))
+        st.sidebar.write(translate_text("AI Assistant Response:", language_code))
         st.sidebar.write(ai_response)
 
         # Loan Application Guidance
